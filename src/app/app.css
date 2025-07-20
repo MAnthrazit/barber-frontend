@@ -1,0 +1,11 @@
+main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: white;
+  border-radius: 5px;
+  width: 1200px;
+  margin: 0 auto;
+  margin-top: 60px;
+}

@@ -1,0 +1,57 @@
+<div class="home-wrapper">
+  <div class="month-wrapper">
+    <button class="nav-button" (click)="prevMonth()" [disabled]="isAtMinMonth">&#60;</button>
+
+    <div class="month">
+      <h3>{{ currentMonth.name }}</h3>
+    </div>
+
+    <button class="nav-button" (click)="nextMonth()" [disabled]="isAtMaxMonth">&#62;</button>
+  </div>
+
+  <div class="day-wrapper">
+
+    <div class="weekday" *ngFor="let day of weekdays">{{ day }}</div>
+    <div *ngFor="let _ of getOffset(currentMonth)" class="day placeholder"></div>
+    <div
+      class="day"
+      *ngFor="let day of getDaysInMonth(currentMonth)"
+      [class.selected]="isSelected(currentMonthIndex, day)"
+      [class.past]="isPastDay(currentMonthIndex, day)"
+      (click)="toggleDay(currentMonthIndex, day)"
+    >
+      {{ day }}
+    </div>
+  </div>
+
+  <button class="reload-button" (click)="refreshEvents($event)">
+    <h3>Aktualisieren</h3>
+  </button>
+
+  <div class="event-wrapper" *ngIf="selectedDay && getEventsForSelectedDay().length > 0">
+    <h3>Cuts für den {{ selectedDay.day }}. {{ months[selectedDay.monthIndex].name }}</h3>
+
+    <div class="event" *ngFor="let event of getEventsForSelectedDay()">
+      <strong>{{ formatTime(event.date) }}</strong>
+      <span>Haarschnitt</span>
+    </div>
+  </div>
+
+  <div class="form-wrapper">
+    <form (submit)="appendRequest($event)">
+      <input type="text" [(ngModel)]="name" name="name" placeholder="Name" required />
+      <input type="email" [(ngModel)]="email" name="email" placeholder="Email" required />
+
+      <div class="time-wrapper">
+        <input type="number" [(ngModel)]="h" name="h" min="0" max="23" placeholder="HH" required />
+        <span class="colon">:</span>
+        <input type="number" [(ngModel)]="min" name="min" min="0" max="59" step="5" placeholder="MM" required />
+      </div>
+
+      <button type="submit">
+        <h3> Anfragen </h3>
+      </button>
+    </form>
+  </div>
+</div>
+

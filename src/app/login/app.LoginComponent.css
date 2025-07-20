@@ -1,0 +1,56 @@
+.form-wrapper {
+  max-width: 400px;
+  margin: 1rem auto;
+  background: #fdfdfd;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  font-family: 'Segoe UI', sans-serif;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+input[type="password"],
+input[type="text"]{
+  padding: 10px 12px;
+  color: black;
+  background-color: #fdfdfd;
+  border: none;
+  border-bottom-style: solid;
+  border-color: #fdfdfd;
+  border-size: 0.1em;
+  font-size: 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+input[type="password"]:hover,
+input[type="text"]:hover {
+  border-color: black;
+  transition: all 0.3s;
+}
+
+
+input[type="password"]:focus,
+input[type="text"]:focus {
+  border-bottom-style: solid;
+  border-color: black;
+  outline: none;
+}
+
+button[type="submit"] {
+  background-color: #fdfdfd;
+  border: none;
+  color: black;
+  cursor: pointer;
+}
+
+button[type="submit"]:hover {
+  background-color: black;
+  color: white;
+  transition: all 0.3s;
+}
