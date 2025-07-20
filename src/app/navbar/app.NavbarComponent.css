@@ -25,7 +25,19 @@ li a {
   text-decoration: none;
 }
 
-li a:hover {
+li button {
+  background: none;
+  border: none;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font: inherit;
+  cursor: pointer;
+}
+
+
+li a:hover, li button:hover {
   background-color: #111;
 }
 

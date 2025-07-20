@@ -1,9 +1,13 @@
 <nav >
   <ul >
-    <li><a
-        routerLink="/"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }">Home</a></li>
-    <li><a routerLink="/login" routerLinkActive="active">Login</a></li>
+   <li>
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
+    </li>
+    <li *ngIf="!isLoggedIn()">
+      <a routerLink="/login" routerLinkActive="active">Login</a>
+    </li>
+    <li *ngIf="isLoggedIn()">
+      <button (click)="logout($event)">Logout</button>
+    </li>
   </ul>
 </nav>

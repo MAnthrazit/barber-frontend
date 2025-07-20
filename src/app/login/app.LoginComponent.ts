@@ -19,10 +19,6 @@ export class LoginComponent{
   login(event : Event): void {
     event.preventDefault();
 
-    const form : FormData = new FormData();
-    form.append('username', this.username);
-    form.append('password', this.password);
-
     this.auth.login(this.username, this.password).subscribe(
       (res) => {
         this.auth.saveToken(res.token);
