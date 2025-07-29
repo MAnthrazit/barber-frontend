@@ -1,5 +1,8 @@
 export interface Cut{
   id: number
-  date: Date
+  timestamp_start: Date
+  timestamp_end: Date
+  clients: number
   name: string
+  state: number
 }

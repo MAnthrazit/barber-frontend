@@ -32,7 +32,7 @@
     <h3>Cuts für den {{ selectedDay.day }}. {{ months[selectedDay.monthIndex].name }}</h3>
 
     <div class="event" *ngFor="let event of getEventsForSelectedDay()">
-      <strong>{{ formatTime(event.date) }}</strong>
+      <strong>{{ formatTime(event.timestamp_start) }} - {{ formatTime(event.timestamp_end) }}</strong>
       <span>Haarschnitt</span>
     </div>
   </div>

@@ -8,15 +8,15 @@ import { Cut } from "./app.EventInterface";
 })
 
 export class HomeService {
-  baseUrl : string = '';
+  baseUrl : string = 'http://localhost:3000';
 
   constructor(private http: HttpClient){ }
 
-  addRequest(form: FormData) : Observable<Cut> {
-    return this.http.post<any>(`${this.baseUrl}/api/cuts`, form);
+  addRequest(body : any) : Observable<Cut> {
+    return this.http.post<any>(`${this.baseUrl}/api/cuts`, body);
   }
 
-  getRequest() : Observable<Cut[]>{
-    return this.http.get<Cut[]>(`${this.baseUrl}/api/cuts`);
+  getCutsRequest(date: string) : Observable<any[]>{
+    return this.http.get<any[]>(`${this.baseUrl}/api/cuts/${date}`);
   }
 }

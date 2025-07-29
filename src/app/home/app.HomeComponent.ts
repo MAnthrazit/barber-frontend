@@ -4,6 +4,7 @@ import { FormsModule } from "@angular/forms";
 import { AuthService } from "../login/app.AuthService";
 import { HomeService } from "./app.HomeService";
 import { Cut } from "./app.EventInterface";
+import { Observable, map, timestamp } from 'rxjs';
 
 @Component({
   selector: 'app-home-component',
@@ -18,14 +19,12 @@ export class HomeComponent implements OnInit{
 
   name : string = '';
   email : string = '';
+  clients : number = 1;
+  comment : string = '';
   h : number = 0;
   min : number = 0;
 
-  events : Cut[] = [
-    { id: 0, date: new Date(2025, 6, 21, 16, 0), name: 'A' },
-    { id: 0, date: new Date(2025, 6, 21, 14, 0), name: 'B' },
-    { id: 0, date: new Date(2025, 6, 20, 9, 0),  name: 'C' },
-  ];
+  events : Cut[] = [];
 
   months = [
     { name: 'Januar', days: 31 },
@@ -61,7 +60,26 @@ export class HomeComponent implements OnInit{
 
     this.months[1].days = this.isLeapYear(today.getFullYear()) ? 29: 28;
     this.selectedDay = { monthIndex: this.currentMonthIndex, day: today.getDate(), year: today.getFullYear() };
+
+    this.getCutsData(today);
   }
+
+  getCutsData(today: Date) : void {
+    this.home.getCutsRequest(today.toISOString()).pipe(
+      map((events : any[]) =>
+          events.map((event : any)  => ({
+            id: event.id,
+            timestamp_start: new Date(event.timestamp_start),
+            timestamp_end: new Date(event.timestamp_end),
+            clients: event.clients,
+            name: event.name ?? 'Haarschnitt',
+            state: event.state ?? 0,
+          }))
+      )
+    ).subscribe((cuts: Cut[]) => {
+      this.events = cuts;
+  });
+}
 
   isLeapYear(year: number): boolean {
     return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
@@ -130,13 +148,13 @@ export class HomeComponent implements OnInit{
 
     const eventsForDay = this.events.filter(e => {
       return (
-        e.date.getFullYear() === new Date().getFullYear() &&
-          e.date.getMonth() === this.selectedDay!.monthIndex &&
-          e.date.getDate() === this.selectedDay!.day
+        e.timestamp_start.getFullYear() === new Date().getFullYear() &&
+          e.timestamp_start.getMonth() === this.selectedDay!.monthIndex &&
+          e.timestamp_start.getDate() === this.selectedDay!.day
       );
     });
 
-    return eventsForDay.sort((a, b) => a.date.getTime() - b.date.getTime());
+    return eventsForDay.sort((a, b) => a.timestamp_start.getTime() - b.timestamp_start.getTime());
   }
 
   appendRequest(event: Event){
@@ -152,34 +170,43 @@ export class HomeComponent implements OnInit{
       this.min
     );
 
+    console.log(start);
+
     const end : Date = new Date(start.getTime() + 35 * 60000);
 
     const conflicts : boolean= this.events.some(ev => {
       return (
-        ev.date.getFullYear() === start.getFullYear() &&
-        ev.date.getMonth() === start.getMonth() &&
-        ev.date.getDate() === start.getDate() &&
-        this.doesOverlap(start, end, ev.date, new Date(ev.date.getTime() + 35 * 60000))
+        ev.timestamp_start.getFullYear() === ev.timestamp_start.getFullYear() &&
+        ev.timestamp_start.getMonth() === start.getMonth() &&
+        ev.timestamp_start.getDate() === start.getDate() &&
+        this.doesOverlap(start, end, ev.timestamp_start, new Date(ev.timestamp_start.getTime() + (35 * this.clients) * 60000))
       );
     });
 
     if (conflicts) {
-      alert("Nope");
+      console.error('Overlap Error');
       return;
     }
 
 
-    const form : FormData = new FormData();
-    form.append('name', this.name);
-    form.append('email', this.email);
-    form.append('timestamp', this.selectedDay?.year + '-' + this.selectedDay?.monthIndex + '-' + this.selectedDay?.day + ":" + this.h + '-' + this.min);
+    const body = {
+      name: this.name,
+      email: this.email,
+      clients: this.clients,
+      comment: this.comment,
+      timestamp_start: start.toISOString(),
+      timestamp_end: start.toISOString(),
+    };
 
-    this.home.addRequest(form).subscribe(
+    this.home.addRequest(body).subscribe(
       (res: Cut) => {
         this.events.push({
           id: res.id,
           name: 'Haarschnitt',
-          date: start,
+          timestamp_start: start,
+          timestamp_end: end,
+          clients: res.clients,
+          state: res.state,
         });
       },
       (error) => {
@@ -188,17 +215,17 @@ export class HomeComponent implements OnInit{
     )
   }
 
-  refreshEvents(event: Event) : void {
-    event
+  refreshEvents(event: Event): void {
+    event.preventDefault();
 
-    this.home.getRequest().subscribe(
-      (res: Cut[]) => {
-        this.events = res;
-      },
-      (error) => {
-        console.error('Could not fetch events');
-      }
-    )
+    const date = new Date(
+      this.selectedDay?.year!,
+      this.selectedDay?.monthIndex!,
+      this.selectedDay?.day!,
+      0, 0, 0
+    );
+
+    this.getCutsData(date);
   }
 
   doesOverlap(startA: Date, endA: Date, startB: Date, endB: Date): boolean {
@@ -216,7 +243,6 @@ export class HomeComponent implements OnInit{
     const year = now.getFullYear();
     const month = this.currentMonthIndex;
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-
     const today = new Date(now.setHours(0, 0, 0, 0));
 
     for (let day = 1; day <= daysInMonth; day++) {
