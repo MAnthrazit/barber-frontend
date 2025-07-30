@@ -1,0 +1,119 @@
+.dashboard-wrapper{
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding-top: 10px;
+  background-color: white;
+  border-size: 2px;
+  border-color: black;
+}
+
+.month-wrapper {
+  padding: 10px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.nav-button {
+  height: 40px;
+  width: 40px;
+  font-size: 20px;
+  border-radius: 50%;
+  border: none;
+  background-color: white;
+  cursor: pointer;
+}
+
+.nav-button:not(:disabled):hover {
+  background-color: black;
+  color: white;
+  transition: 0.3s;
+}
+
+.nav-button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.month {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+
+  width: 150px;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+}
+
+.day-wrapper {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  padding-top: 10px;
+  justify-items: center;
+  width: 100%;
+}
+
+.weekday {
+  font-weight: bold;
+  text-align: center;
+  padding-bottom: 5px;
+}
+
+
+.day {
+  width: 35px;
+  height: 35px;
+  line-height: 35px;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+
+.day.selected {
+  border: none;
+  background-color: black;
+  color: white;
+  border-radius: 50%;
+  transition: all 0.3s;
+}
+
+.day.placeholder {
+  visibility: hidden;
+}
+
+.day.past {
+  background-color: #f0f0f0;
+  color: #aaa;
+  border-style: dashed;
+  pointer-events: none;
+}
+
+.day:not(.past):not(.selected):hover {
+  background-color: black;
+  transition: all 0.3s;
+  color: white;
+}
+
+.status-0 {
+  background-color: #f0ad4e;
+  transition: background-color 0.5s ease-in-out;
+}
+
+.status-1 {
+  background-color: #5cb85c;
+  transition: background-color 0.5s ease-in-out;
+}
+
+.status-mixed {
+  background: linear-gradient(135deg, #f0ad4e 50%, #5cb85c 50%);
+  transition: background 0.5s ease-in-out;
+}
+
