@@ -42,6 +42,25 @@
       <input type="text" [(ngModel)]="name" name="name" placeholder="Name" required />
       <input type="email" [(ngModel)]="email" name="email" placeholder="Email" required />
 
+      <div class="client-wrapper">
+        <p class="client-label">Kunden</p>
+        <div class="client-controls">
+          <button class="client-button" (click)="deleteClient($event)">–</button>
+          <input type="number" [(ngModel)]="clients" name="clients" min="1" max="10" placeholder="1" required />
+          <button class="client-button" (click)="addClient($event)">+</button>
+        </div>
+      </div>
+
+      <div class="comment-wrapper">
+        <textarea
+          id="comment"
+          name="comment"
+          [(ngModel)]="comment"
+          maxlength="255"
+          placeholder="comment">
+        </textarea>
+      </div>
+
       <div class="time-wrapper">
         <input type="number" [(ngModel)]="h" name="h" min="0" max="23" placeholder="HH" required />
         <span class="colon">:</span>

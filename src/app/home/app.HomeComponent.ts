@@ -122,6 +122,20 @@ export class HomeComponent implements OnInit{
     }
   }
 
+  addClient(event : Event) : void{
+    event.preventDefault();
+    if (this.clients <  9){
+      this.clients ++;
+    }
+  }
+
+  deleteClient(event: Event) : void {
+    event.preventDefault();
+    if (this.clients > 1){
+      this.clients --;
+    }
+  }
+
   isSelected(monthIndex: number, day: number): boolean {
     return (
       this.selectedDay?.monthIndex === monthIndex &&
