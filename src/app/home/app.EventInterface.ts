@@ -5,4 +5,5 @@ export interface Cut{
   clients: number
   name: string
   state: number
+  comment: string
 }

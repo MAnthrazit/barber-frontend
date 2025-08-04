@@ -74,6 +74,7 @@ export class HomeComponent implements OnInit{
             clients: event.clients,
             name: event.name ?? 'Haarschnitt',
             state: event.state ?? 0,
+            comment: event.comment ?? '',
           }))
       )
     ).subscribe((cuts: Cut[]) => {
@@ -221,6 +222,7 @@ export class HomeComponent implements OnInit{
           timestamp_end: end,
           clients: res.clients,
           state: res.state,
+          comment: '',
         });
       },
       (error) => {

@@ -102,18 +102,84 @@
   color: white;
 }
 
-.status-0 {
-  background-color: #f0ad4e;
-  transition: background-color 0.5s ease-in-out;
+
+.day.hasEntry {
+  background-color: #ADD8E6;
+  color: black;
+  border: none;
 }
 
-.status-1 {
-  background-color: #5cb85c;
-  transition: background-color 0.5s ease-in-out;
+.month-recomandation-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row;
+  justify-content: center;
+  gap: 5px;
 }
 
-.status-mixed {
-  background: linear-gradient(135deg, #f0ad4e 50%, #5cb85c 50%);
-  transition: background 0.5s ease-in-out;
+.month-box {
+  border: none;
+  display:flex;
+  background: #eaeaea;
+  justify-content: center;
+  align-items: center;
+  border-radius: 6px;
+  width: 45%;
+}
+
+.month-box h3 {
+  font-size: 12px;
+}
+
+.month-box:not(.selected):hover {
+  background-color: black;
+  transition: all 0.3s;
+  color: white;
+}
+
+.event-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-top: 1rem;
+  padding: 10px;
+  border-top: 1px solid #ccc;
+}
+
+.event {
+  display: flex;
+  flex-direction: column;
+  border: none;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+  padding: 10px;
+  margin: 5px 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.2s;
+}
+
+.event-actions {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.event-button{
+  display: flex;
+  justify-content: center;
+  background-color: white;
+  color: black;
+  border: none;
+  width:100%;
+}
+.event-card p {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+}
+
+.event-button:hover{
+  background-color: black;
+  color: white;
+  transition: all 0.3s;
 }
 

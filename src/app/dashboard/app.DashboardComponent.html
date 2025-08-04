@@ -9,6 +9,17 @@
     <button class="nav-button" (click)="nextMonth()" [disabled]="isAtMaxMonth">&#62;</button>
   </div>
 
+  <div class="month-recomandation-wrapper">
+    <button
+    class="month-box"
+    *ngFor="let m of monthKeys"
+    (click)="switchMonth($event, m)"
+    [class.selected]="isSelectedMonth(m)"
+    >
+      <h3>{{m}} </h3>
+    </button>
+  </div>
+
   <div class="day-wrapper">
 
     <div class="weekday" *ngFor="let day of weekdays">{{ day }}</div>
@@ -17,15 +28,27 @@
       class="day"
       *ngFor="let day of getDaysInMonth(currentMonth)"
       [class.selected]="isSelected(currentMonthIndex, day)"
-
-      [class.status-0]="getDayStatus(currentMonthIndex, day)?.has(0) && !getDayStatus(currentMonthIndex, day)?.has(1)"
-      [class.status-1]="getDayStatus(currentMonthIndex, day)?.has(1) && !getDayStatus(currentMonthIndex, day)?.has(0)"
-      [class.status-mixed]="getDayStatus(currentMonthIndex, day)?.has(1) && getDayStatus(currentMonthIndex, day)?.has(0)"
-
       [class.past]="isPastDay(currentMonthIndex, day)"
+      [class.hasEntry]="hasEntry(day)"
       (click)="toggleDay(currentMonthIndex, day)"
     >
       {{ day }}
+    </div>
+  </div>
+  <div class="event-wrapper" *ngIf="selectedDay && getEventsForSelectedDay().length > 0">
+    <h3>Anfragen am {{ selectedDay.day }}. {{ months[selectedDay.monthIndex].name }}</h3>
+
+    <div class="event" *ngFor="let event of getEventsForSelectedDay()">
+      <strong>{{ formatTime(event.timestamp_start) }} - {{ formatTime(event.timestamp_end) }}</strong>
+      <p><strong>Kunden:</strong> {{ event.clients }}</p>
+      <p><strong>Kommentar:</strong> {{ event.comment || '–' }}</p>
+      <p><strong>Status:</strong> {{ event.state === 0 ? 'Pending' : 'Confirmed' }}</p>
+
+      <div class="event-actions">
+        <button class="event-button" (click)="onReject($event, event.id)"><h3>Ablehnen</h3></button>
+        <button class="event-button" (click)="onEdit($event, event.id)"><h3>Bearbeiten</h3></button>
+        <button class="event-button" *ngIf="event.state === 0" (click)="onAccept($event, event.id)"><h3>Annehmen</h3></button>
+      </div>
     </div>
   </div>
 </div>

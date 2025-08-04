@@ -30,7 +30,9 @@ export class DashboardComponent implements OnInit{
     { name: 'Dezember', days: 31 }
   ];
 
-  dayStatusMap = new Map<string, Set<number>>();
+  monthMap = new Map<string, Set<Cut>>();
+  monthKeys: string[] = [];
+
   weekdays : string[] = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
 
   minMonthIndex : number = 0;
@@ -39,10 +41,10 @@ export class DashboardComponent implements OnInit{
 
   selectedDay: { monthIndex: number; day: number; year: number } | null = null;
   events : Cut[] = [
-    {id: 1, timestamp_start: new Date(), timestamp_end: new Date(), clients: 1, name: 'Someone', state: 0},
-    {id: 2, timestamp_start: new Date(), timestamp_end: new Date(2025,8,1), clients: 1, name: 'Someone', state: 1},
-    {id: 3, timestamp_start: new Date(), timestamp_end: new Date(2025,8,2), clients: 1, name: 'Someone', state: 0},
-    {id: 4, timestamp_start: new Date(), timestamp_end: new Date(2025,8,2), clients: 1, name: 'Someone', state: 1},
+    {id: 1, timestamp_start: new Date(), timestamp_end: new Date(), clients: 1, name: 'Someone', state: 0, comment: ''},
+    {id: 2, timestamp_start: new Date(2025,8,2), timestamp_end: new Date(2025,8,1), clients: 1, name: 'Someone', state: 1,  comment: ''},
+    {id: 3, timestamp_start: new Date(2025,9,2), timestamp_end: new Date(2025,9,2), clients: 1, name: 'Someone', state: 0,  comment: ''},
+    {id: 4, timestamp_start: new Date(2025,10,2,15,0,0), timestamp_end: new Date(2025,10,2,15,30,0), clients: 1, name: 'Someone', state: 1,  comment: ''},
   ];
 
   ngOnInit(): void {
@@ -126,10 +128,52 @@ export class DashboardComponent implements OnInit{
     );
   }
 
+  isSelectedMonth(month: string): boolean{
+    const monthIndex = this.months.findIndex(m => m.name === month);
+    return monthIndex === this.selectedDay?.monthIndex;
+  }
+
   isPastDay(monthIndex: number, day: number): boolean {
     const today = new Date();
     const currentDate = new Date(today.getFullYear(), monthIndex, day);
     return currentDate < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  }
+
+  getEventsForSelectedDay() {
+    if (!this.selectedDay) return [];
+
+    const eventsForDay = this.events.filter(e => {
+      return (
+        e.timestamp_start.getFullYear() === new Date().getFullYear() &&
+          e.timestamp_start.getMonth() === this.selectedDay!.monthIndex &&
+          e.timestamp_start.getDate() === this.selectedDay!.day
+      );
+    });
+
+    return eventsForDay.sort((a, b) => a.timestamp_start.getTime() - b.timestamp_start.getTime());
+  }
+
+
+  formatTime(date: Date): string {
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  }
+
+  hasEntry(day: number): boolean {
+    const monthName = this.months[this.currentMonthIndex].name;
+
+    if (this.monthMap.has(monthName)) {
+      const cuts: Set<Cut> = this.monthMap.get(monthName)!;
+
+      for (const cut of cuts) {
+        if (cut.timestamp_start.getDate() === day) {
+          return true;
+        }
+      }
+    }
+
+    return false;
   }
 
   onReject(event: Event, id : number) : void {
@@ -158,6 +202,9 @@ export class DashboardComponent implements OnInit{
     )
   }
 
+  onEdit(event: Event, id: number):void {
+  }
+
   onInsertHoliday(event: Event) : void{
     event.preventDefault();
 
@@ -179,20 +226,35 @@ export class DashboardComponent implements OnInit{
     this.selectedDay = { monthIndex: monthIndex, day: day, year: today.getFullYear() };
   }
 
-  updateDayStatusMap() {
-    this.dayStatusMap.clear();
+  switchMonth(event : Event, month: string): void {
+    event.preventDefault();
 
-    this.events.forEach(event => {
-      const key = `${event.timestamp_start.getMonth()}-${event.timestamp_start.getDate()}`;
-      if (!this.dayStatusMap.has(key)) {
-        this.dayStatusMap.set(key, new Set());
-      }
-      this.dayStatusMap.get(key)!.add(event.state);
-    });
+    const monthIndex = this.months.findIndex(m => m.name === month);
+    this.currentMonthIndex = monthIndex;
+    this.updateSelectedDayAfterMonthChange();
   }
 
-  getDayStatus(month: number, day: number): Set<number> | undefined {
-    return this.dayStatusMap.get(`${month}-${day}`);
+
+  updateDayStatusMap(): void {
+    this.monthMap.clear();
+
+    this.events.forEach(event => {
+      const eventDate = event.timestamp_start;
+      const monthIndex = eventDate.getMonth();
+      const dayOfMonth = eventDate.getDate();
+
+      if (!this.isPastDay(monthIndex, dayOfMonth)) {
+        const monthName = this.months[monthIndex].name;
+
+        if (!this.monthMap.has(monthName)) {
+          this.monthMap.set(monthName, new Set<Cut>());
+        }
+
+        this.monthMap.get(monthName)!.add(event);
+      }
+    });
+
+    this.monthKeys = Array.from(this.monthMap.keys());
   }
 
   onDeleteHolidays(event : Event){
