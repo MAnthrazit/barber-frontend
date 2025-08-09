@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../login/app.AuthService';
 
 @Component({
@@ -9,17 +9,21 @@ import { AuthService } from '../login/app.AuthService';
   templateUrl: './app.NavbarComponent.html',
   styleUrl: './app.NavbarComponent.css'
 })
-export class NavbarComponent {
+export class NavbarComponent implements OnInit{
 
-  constructor(private auth : AuthService){}
+  isLoggedIn : boolean = false;
+
+  ngOnInit(): void {
+    this.auth.isAuthenticated().subscribe((isAuth : boolean) => {
+      this.auth.isLoginSubject.next(isAuth);
+    });
+  }
+
+  constructor(public auth : AuthService, private router : Router){}
 
   logout(event: Event): void{
-    event.preventDefault();
+    event.preventDefault()
     this.auth.logout();
+    this.router.navigate(['/'])
   }
-
-  isLoggedIn(): boolean {
-    return this.auth.isAuthenticated();
-  }
-
 }

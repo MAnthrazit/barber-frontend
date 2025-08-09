@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";;
-import { Observable } from "rxjs";
+import { BehaviorSubject, catchError, map, Observable, of } from "rxjs";
 
 @Injectable({
   providedIn : 'root'
@@ -8,6 +8,7 @@ import { Observable } from "rxjs";
 
 export class AuthService {
   baseUrl : string = 'http://localhost:3000';
+  isLoginSubject = new BehaviorSubject<boolean>(false);
   tokenKey : string = 'jwt'
 
   constructor(private http: HttpClient){ }
@@ -18,6 +19,7 @@ export class AuthService {
 
   logout() : void {
     localStorage.removeItem(this.tokenKey);
+    this.isLoginSubject.next(false);
   }
 
   saveToken(token: string) {
@@ -28,9 +30,12 @@ export class AuthService {
     return localStorage.getItem(this.tokenKey);
   }
 
-   isAuthenticated(): boolean {
-    return !!this.getToken();
+  isAuthenticated(): Observable<boolean> {
+    return this.http.get<boolean>(`${this.baseUrl}/api/auth-check`)
+      .pipe(
+        map(() => true),
+        catchError(() => of(false))
+      );
   }
-
 }
 

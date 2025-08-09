@@ -17,12 +17,11 @@ export class LoginComponent{
   constructor(private auth: AuthService, private router: Router){}
 
   login(event : Event): void {
-    event.preventDefault();
-
     this.auth.login(this.username, this.password).subscribe(
       (res) => {
         this.auth.saveToken(res.token);
-        this.router.navigate(['/'])
+        this.auth.isLoginSubject.next(true);
+        this.router.navigate(['dashboard'])
       },
       (error: any) => {
         console.error(error.message);

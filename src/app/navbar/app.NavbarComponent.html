@@ -3,14 +3,14 @@
     <li>
       <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Home</a>
     </li>
-    <li>
+    <li *ngIf="auth.isLoginSubject | async">
       <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
     </li>
-    <li *ngIf="!isLoggedIn()">
+    <li *ngIf="!(auth.isLoginSubject | async)">
       <a routerLink="/login" routerLinkActive="active">Login</a>
     </li>
-    <li *ngIf="isLoggedIn()">
-      <button (click)="logout($event)">Logout</button>
+    <li *ngIf="auth.isLoginSubject | async">
+      <button type="submit" (click)="logout($event)">Logout</button>
     </li>
   </ul>
 </nav>
