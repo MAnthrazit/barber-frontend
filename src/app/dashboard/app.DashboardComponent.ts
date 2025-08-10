@@ -3,6 +3,8 @@ import { AuthService } from "../login/app.AuthService";
 import { DashboardService } from "./app.DashboardService";
 import { CommonModule } from "@angular/common";
 import { Cut } from "../home/app.EventInterface";
+import { HomeService } from "../home/app.HomeService";
+import { map } from "rxjs";
 
 @Component({
   selector: 'app-dashboard-component',
@@ -12,7 +14,7 @@ import { Cut } from "../home/app.EventInterface";
 })
 
 export class DashboardComponent implements OnInit{
-  constructor(private dashboardService: DashboardService){}
+  constructor(private dashboardService: DashboardService, private home : HomeService){}
 
 
   months = [
@@ -40,12 +42,7 @@ export class DashboardComponent implements OnInit{
   currentMonthIndex : number= this.minMonthIndex;
 
   selectedDay: { monthIndex: number; day: number; year: number } | null = null;
-  events : Cut[] = [
-    {id: 1, timestamp_start: new Date(), timestamp_end: new Date(), clients: 1, name: 'Someone', state: 0, comment: ''},
-    {id: 2, timestamp_start: new Date(2025,8,2), timestamp_end: new Date(2025,8,1), clients: 1, name: 'Someone', state: 1,  comment: ''},
-    {id: 3, timestamp_start: new Date(2025,9,2), timestamp_end: new Date(2025,9,2), clients: 1, name: 'Someone', state: 0,  comment: ''},
-    {id: 4, timestamp_start: new Date(2025,10,2,15,0,0), timestamp_end: new Date(2025,10,2,15,30,0), clients: 1, name: 'Someone', state: 1,  comment: ''},
-  ];
+  events : Cut[] = [];
 
   ngOnInit(): void {
     const today : Date = new Date();
@@ -55,7 +52,27 @@ export class DashboardComponent implements OnInit{
     this.months[1].days = this.isLeapYear(today.getFullYear()) ? 29: 28;
     this.selectedDay = { monthIndex: this.currentMonthIndex, day: today.getDate(), year: today.getFullYear() };
 
+    this.getCuts();
     this.updateDayStatusMap();
+  }
+
+
+  getCuts() : void {
+    this.home.getCuts().pipe(
+      map((events : any[]) =>
+          events.map((event : any)  => ({
+            id: event.id,
+            timestamp_start: new Date(event.timestamp_start),
+            timestamp_end: new Date(event.timestamp_end),
+            clients: event.clients,
+            name: event.name,
+            state: event.state,
+            comment: event.comment,
+          }))
+      )
+    ).subscribe((cuts: Cut[]) => {
+      this.events = cuts;
+    });
   }
 
   isLeapYear(year: number): boolean {

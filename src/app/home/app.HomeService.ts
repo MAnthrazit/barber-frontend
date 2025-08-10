@@ -8,7 +8,7 @@ import { Cut } from "./app.EventInterface";
 })
 
 export class HomeService {
-  baseUrl : string = 'http://localhost:3000';
+  baseUrl : string = 'http://localhost:9000';
 
   constructor(private http: HttpClient){ }
 
@@ -18,5 +18,10 @@ export class HomeService {
 
   getCutsRequest(date: string) : Observable<any[]>{
     return this.http.get<any[]>(`${this.baseUrl}/api/cuts/${date}`);
+  }
+
+
+  getCuts() : Observable<any[]>{
+    return this.http.get<any[]>(`${this.baseUrl}/api/cuts`);
   }
 }

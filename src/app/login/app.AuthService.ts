@@ -7,7 +7,7 @@ import { BehaviorSubject, catchError, map, Observable, of } from "rxjs";
 })
 
 export class AuthService {
-  baseUrl : string = 'http://localhost:3000';
+  baseUrl : string = 'http://localhost:9000';
   isLoginSubject = new BehaviorSubject<boolean>(false);
   tokenKey : string = 'jwt'
 

@@ -61,11 +61,18 @@ export class HomeComponent implements OnInit{
     this.months[1].days = this.isLeapYear(today.getFullYear()) ? 29: 28;
     this.selectedDay = { monthIndex: this.currentMonthIndex, day: today.getDate(), year: today.getFullYear() };
 
-    this.getCutsData(today);
+    this.getCutsData();
   }
 
-  getCutsData(today: Date) : void {
-    this.home.getCutsRequest(today.toISOString()).pipe(
+  getCutsData() : void {
+
+    const year = this.selectedDay?.year!;
+    const month = String(this.selectedDay?.monthIndex! + 1).padStart(2, '0');
+    const day = String(this.selectedDay?.day!).padStart(2, '0');
+
+    const dateString = `${year}-${month}-${day}`;
+
+    this.home.getCutsRequest(dateString).pipe(
       map((events : any[]) =>
           events.map((event : any)  => ({
             id: event.id,
@@ -233,15 +240,7 @@ export class HomeComponent implements OnInit{
 
   refreshEvents(event: Event): void {
     event.preventDefault();
-
-    const date = new Date(
-      this.selectedDay?.year!,
-      this.selectedDay?.monthIndex!,
-      this.selectedDay?.day!,
-      0, 0, 0
-    );
-
-    this.getCutsData(date);
+    this.getCutsData();
   }
 
   doesOverlap(startA: Date, endA: Date, startB: Date, endB: Date): boolean {
