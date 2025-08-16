@@ -7,14 +7,14 @@ import { BehaviorSubject, catchError, map, Observable, of } from "rxjs";
 })
 
 export class AuthService {
-  baseUrl : string = 'http://localhost:9000';
+  baseUrl : string = '/api';
   isLoginSubject = new BehaviorSubject<boolean>(false);
   tokenKey : string = 'jwt'
 
   constructor(private http: HttpClient){ }
 
   login(username: string, password: string) : Observable<{token: string}> {
-    return this.http.post<{token: string}>(`${this.baseUrl}/api/login`, {username, password});
+    return this.http.post<{token: string}>(`${this.baseUrl}/login`, {username, password});
   }
 
   logout() : void {
@@ -31,7 +31,7 @@ export class AuthService {
   }
 
   isAuthenticated(): Observable<boolean> {
-    return this.http.get<boolean>(`${this.baseUrl}/api/auth-check`)
+    return this.http.get<boolean>(`${this.baseUrl}/auth-check`)
       .pipe(
         map(() => true),
         catchError(() => of(false))

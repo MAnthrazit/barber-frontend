@@ -8,20 +8,20 @@ import { Cut } from "./app.EventInterface";
 })
 
 export class HomeService {
-  baseUrl : string = 'http://localhost:9000';
+  baseUrl : string = '/api';
 
   constructor(private http: HttpClient){ }
 
   addRequest(body : any) : Observable<Cut> {
-    return this.http.post<any>(`${this.baseUrl}/api/cuts`, body);
+    return this.http.post<any>(`${this.baseUrl}/cuts`, body);
   }
 
   getCutsRequest(date: string) : Observable<any[]>{
-    return this.http.get<any[]>(`${this.baseUrl}/api/cuts/${date}`);
+    return this.http.get<any[]>(`${this.baseUrl}/cuts/${date}`);
   }
 
 
   getCuts() : Observable<any[]>{
-    return this.http.get<any[]>(`${this.baseUrl}/api/cuts`);
+    return this.http.get<any[]>(`${this.baseUrl}/cuts`);
   }
 }
