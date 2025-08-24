@@ -162,7 +162,7 @@ export class DashboardComponent implements OnInit{
     const eventsForDay = this.events.filter(e => {
       return (
         e.timestamp_start.getFullYear() === new Date().getFullYear() &&
-          e.timestamp_start.getMonth() === this.selectedDay!.monthIndex &&
+          e.timestamp_start.getMonth() === (this.selectedDay!.monthIndex) &&
           e.timestamp_start.getDate() === this.selectedDay!.day
       );
     });
