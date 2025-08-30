@@ -1,3 +1,5 @@
+#!/bin/sh
+
 EMAIL_FILE="/run/secrets/certbot_email"
 
 if [ -n "$DOMAIN" ] && [ -f "$EMAIL_FILE" ]; then
