@@ -197,26 +197,35 @@ export class DashboardComponent implements OnInit{
     event.preventDefault();
 
     this.dashboardService.rejectRequest(id).subscribe(
-      (next : any) => {
-        console.log('Request rejected');
-      },
-      () => {
-        console.error('error rejecting');
-      }
-    )
+    () => {
+      this.events = this.events.filter(c => c.id !== id);
+    },
+      (error) => console.error("Failed to reject cut", error)
+    );
   }
 
   onAccept(event: Event, id : number) : void {
     event.preventDefault();
 
-    this.dashboardService.acceptRequest(id).subscribe(
-      (next : any) => {
-        console.log('Request accepted');
+    this.dashboardService.acceptRequest(id).pipe(
+      map(event => ({
+            id: event.id,
+            timestamp_start: new Date(event.timestamp_start),
+            timestamp_end: new Date(event.timestamp_end),
+            clients: event.clients,
+            name: event.name,
+            state: event.state,
+            comment: event.comment,
+      }))
+    ).subscribe(
+      (mappedCut: Cut) => {
+        const index = this.events.findIndex(c => c.id === id);
+        if (index > -1) {
+          this.events[index] = mappedCut;
+        }
       },
-      () => {
-        console.error('error accepting');
-      }
-    )
+      error => console.error('Failed to accept cut', error)
+    );
   }
 
   onEdit(event: Event, id: number):void {

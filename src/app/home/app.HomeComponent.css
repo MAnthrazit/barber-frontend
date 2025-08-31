@@ -291,3 +291,12 @@ button[type="submit"]:hover {
   width: 100%;
   box-sizing: border-box;
 }
+
+.text-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: auto;
+  width: 100%;
+}
