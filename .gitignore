@@ -1,5 +1,10 @@
 # See https://docs.github.com/get-started/getting-started-with-git/ignoring-files for more about ignoring files.
 
+# Div
+/Dockerfile
+/crontab.txt
+/docker-entrypoint.sh
+
 # Compiled output
 /dist
 /tmp
