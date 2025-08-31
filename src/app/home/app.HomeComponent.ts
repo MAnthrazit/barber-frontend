@@ -67,7 +67,7 @@ export class HomeComponent implements OnInit{
   getCutsData() : void {
 
     const year = this.selectedDay?.year!;
-    const month = String(this.selectedDay?.monthIndex! + 1).padStart(2, '0');
+    const month = String(this.selectedDay?.monthIndex!).padStart(2, '0');
     const day = String(this.selectedDay?.day!).padStart(2, '0');
 
     const dateString = `${year}-${month}-${day}`;
@@ -115,6 +115,23 @@ export class HomeComponent implements OnInit{
   get isAtMaxMonth(): boolean {
     return this.currentMonthIndex >= this.maxMonthIndex;
   }
+
+  get calculatedTime(): string {
+    if (this.h == null || this.min == null || this.clients == null) {
+      return '';
+    }
+
+    const start = new Date();
+    start.setHours(this.h);
+    start.setMinutes(this.min);
+
+    const end : Date = new Date(start.getTime() + (35 * 60000 * this.clients));
+    const hours = end.getHours().toString().padStart(2, '0');
+    const minutes = end.getMinutes().toString().padStart(2, '0');
+
+    return `bis ${hours}:${minutes}`;
+  }
+
 
   prevMonth(): void {
     if (!this.isAtMinMonth) {
@@ -192,24 +209,11 @@ export class HomeComponent implements OnInit{
       this.min
     );
 
-    console.log(start);
+    const end: Date = new Date(start.getTime() + 35 * 60000 * this.clients);
 
-    const end : Date = new Date(start.getTime() + 35 * 60000);
-
-    const conflicts : boolean= this.events.some(ev => {
-      return (
-        ev.timestamp_start.getFullYear() === ev.timestamp_start.getFullYear() &&
-        ev.timestamp_start.getMonth() === start.getMonth() &&
-        ev.timestamp_start.getDate() === start.getDate() &&
-        this.doesOverlap(start, end, ev.timestamp_start, new Date(ev.timestamp_start.getTime() + (35 * this.clients) * 60000))
-      );
-    });
-
-    if (conflicts) {
-      console.error('Overlap Error');
+    if (this.doesOverlap(start,end)) {
       return;
     }
-
 
     const body = {
       name: this.name,
@@ -217,7 +221,7 @@ export class HomeComponent implements OnInit{
       clients: this.clients,
       comment: this.comment,
       timestamp_start: start.toISOString(),
-      timestamp_end: start.toISOString(),
+      timestamp_end: end.toISOString(),
     };
 
     this.home.addRequest(body).subscribe(
@@ -238,13 +242,24 @@ export class HomeComponent implements OnInit{
     )
   }
 
+  doesOverlap(start: Date, end: Date): boolean {
+    return this.events.some(ev => {
+      return (
+        ev.timestamp_start.getFullYear() === start.getFullYear() &&
+        ev.timestamp_start.getMonth() === start.getMonth() &&
+        ev.timestamp_start.getDate() === start.getDate() &&
+        this.checkOverlap(start, end, ev.timestamp_start, ev.timestamp_end)
+      );
+    });
+  }
+
+  checkOverlap(startA: Date, endA: Date, startB: Date, endB: Date): boolean {
+    return startA < endB && startB < endA;
+  }
+
   refreshEvents(event: Event): void {
     event.preventDefault();
     this.getCutsData();
-  }
-
-  doesOverlap(startA: Date, endA: Date, startB: Date, endB: Date): boolean {
-    return startA < endB && startB < endA;
   }
 
   formatTime(date: Date): string {

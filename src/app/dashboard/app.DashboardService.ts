@@ -12,11 +12,11 @@ export class  DashboardService{
   constructor(private http: HttpClient){}
 
   rejectRequest(id: number): Observable<any>{
-    return this.http.delete<any>(`${this.baseUrl}/api/cuts/reject/` + id);
+    return this.http.delete<any>(`${this.baseUrl}/api/cuts/reject/${id}`);
   }
 
   acceptRequest(id: number): Observable<Cut>{
-    return this.http.delete<Cut>(`${this.baseUrl}/api/cuts/accept/` + id);
+    return this.http.post<any>(`${this.baseUrl}/api/cuts/accept/${id}`, {});
   }
 
   insertHoliday(dates : Date[]): Observable<Date[]>{
