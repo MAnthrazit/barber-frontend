@@ -5,12 +5,13 @@ import { CommonModule } from "@angular/common";
 import { Cut } from "../home/app.EventInterface";
 import { HomeService } from "../home/app.HomeService";
 import { map } from "rxjs";
+import { HolidayComponent } from "../holiday/app.HolidayComponent";
 
 @Component({
   selector: 'app-dashboard-component',
   templateUrl: 'app.DashboardComponent.html',
   styleUrl: 'app.DashboardComponent.css',
-  imports: [CommonModule]
+  imports: [CommonModule, HolidayComponent]
 })
 
 export class DashboardComponent implements OnInit{

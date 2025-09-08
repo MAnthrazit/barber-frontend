@@ -19,8 +19,8 @@ export class  DashboardService{
     return this.http.post<any>(`${this.baseUrl}/api/cuts/accept/${id}`, {});
   }
 
-  insertHoliday(dates : Date[]): Observable<Date[]>{
-    return this.http.post<Date[]>(`${this.baseUrl}/api/holidays/insert`, dates);
+  insertHoliday(data: any): Observable<any>{
+    return this.http.post<any>(`${this.baseUrl}/api/holidays/insert`, data);
   }
 
   deleteHoliday(dates : Date[]): Observable<Date[]>{

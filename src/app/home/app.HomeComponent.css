@@ -118,6 +118,7 @@
   background-color:black;
   transition: all 0.3s;
 }
+
 .event-wrapper {
   display: flex;
   flex-direction: column;
