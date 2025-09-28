@@ -1,10 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { Component, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { AuthService } from "../login/app.AuthService";
 import { HomeService } from "./app.HomeService";
 import { Cut } from "./app.EventInterface";
-import { Observable, map, timestamp } from 'rxjs';
 
 @Component({
   selector: 'app-home-component',
@@ -15,7 +13,7 @@ import { Observable, map, timestamp } from 'rxjs';
 
 export class HomeComponent implements OnInit{
 
-  constructor(private auth: AuthService, private home: HomeService) {}
+  constructor(private home: HomeService) {}
 
   name : string = '';
   email : string = '';
@@ -60,34 +58,21 @@ export class HomeComponent implements OnInit{
 
     this.months[1].days = this.isLeapYear(today.getFullYear()) ? 29: 28;
     this.selectedDay = { monthIndex: this.currentMonthIndex, day: today.getDate(), year: today.getFullYear() };
-
     this.getCutsData();
   }
 
-  getCutsData() : void {
 
+  getCutsData() : void {
     const year = this.selectedDay?.year!;
     const month = String(this.selectedDay?.monthIndex!).padStart(2, '0');
     const day = String(this.selectedDay?.day!).padStart(2, '0');
 
     const dateString = `${year}-${month}-${day}`;
 
-    this.home.getCutsRequest(dateString).pipe(
-      map((events : any[]) =>
-          events.map((event : any)  => ({
-            id: event.id,
-            timestamp_start: new Date(event.timestamp_start),
-            timestamp_end: new Date(event.timestamp_end),
-            clients: event.clients,
-            name: event.name ?? 'Haarschnitt',
-            state: event.state ?? 0,
-            comment: event.comment ?? '',
-          }))
-      )
-    ).subscribe((cuts: Cut[]) => {
+    this.home.getAcceptedCuts(dateString).subscribe((cuts: Cut[]) => {
       this.events = cuts;
-  });
-}
+    });
+  }
 
   isLeapYear(year: number): boolean {
     return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
@@ -226,18 +211,10 @@ export class HomeComponent implements OnInit{
 
     this.home.addRequest(body).subscribe(
       (res: Cut) => {
-        this.events.push({
-          id: res.id,
-          name: 'Haarschnitt',
-          timestamp_start: start,
-          timestamp_end: end,
-          clients: res.clients,
-          state: res.state,
-          comment: '',
-        });
+        this.events.push(res);
       },
       (error) => {
-        console.error("Request denied")
+        console.error("Request denied", error)
       }
     )
   }

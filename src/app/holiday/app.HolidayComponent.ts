@@ -2,7 +2,8 @@ import { Component } from "@angular/core";
 import { OnInit } from "@angular/core";
 import { Cut } from "../home/app.EventInterface";
 import { CommonModule, formatDate } from "@angular/common";
-import { DashboardService } from "../dashboard/app.DashboardService";
+import { Holiday } from "./app.HolidayInterface";
+import { HolidayService } from "./app.HolidayService";
 
 
 @Component({
@@ -13,7 +14,7 @@ import { DashboardService } from "../dashboard/app.DashboardService";
 })
 
 export class HolidayComponent implements OnInit{
-  constructor(private dashboarService : DashboardService){};
+  constructor(private holidayService : HolidayService){};
 
   months = [
     { name: 'Januar', days: 31 },
@@ -32,6 +33,7 @@ export class HolidayComponent implements OnInit{
 
 
   weekdays : string[] = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+  holidays: Holiday[] = [];
 
   minMonthIndex : number = 0;
   maxMonthIndex : number = this.months.length - 1;
@@ -52,8 +54,19 @@ export class HolidayComponent implements OnInit{
 
       this.months[1].days = this.isLeapYear(today.getFullYear()) ? 29: 28;
       this.selectedDay = { monthIndex: this.currentMonthIndex, day: today.getDate(), year: today.getFullYear() };
+      this.getHolidayData();
   }
 
+  getHolidayData(): void {
+    this.holidayService.getHolidays().subscribe({
+      next: (holidays: Holiday[]) => {
+        this.holidays = holidays;
+      },
+      error: (err) => {
+        console.error('Failed to load holidays:', err);
+      }
+    });
+  }
 
   isLeapYear(year: number): boolean {
     return (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
@@ -69,6 +82,8 @@ export class HolidayComponent implements OnInit{
     const firstDay = new Date(year, monthIndex, 1).getDay();
     return Array(firstDay);
   }
+
+
 
   get currentMonth() {
     return this.months[this.currentMonthIndex];
@@ -99,6 +114,19 @@ export class HolidayComponent implements OnInit{
     const second : boolean= (this.pointerTwo?.monthIndex === monthIndex) && (this.pointerTwo?.day === day);
     return first || second;
   }
+
+  isHoliday(monthIndex: number, day: number): boolean {
+    const year = new Date().getFullYear();
+    const currentDate = new Date(year, monthIndex, day).setHours(0, 0, 0, 0);
+
+    return this.holidays.some(holiday => {
+      const start = new Date(holiday.timestamp_start).setHours(0, 0, 0, 0);
+      const end = new Date(holiday.timestamp_end).setHours(0, 0, 0, 0);
+
+      return currentDate >= start && currentDate <= end;
+    });
+  }
+
 
   isBetween(monthIndex: number, day: number): boolean {
     if (!this.pointerOne || !this.pointerTwo) return false;
@@ -158,6 +186,10 @@ export class HolidayComponent implements OnInit{
     return `${selectedDay}/${selectedMonth}/${selectedYear}`;
   }
 
+  formatDateWrapper(date : Date) : string {
+    return this.formatDate(date.getDate(), date.getMonth(), date.getFullYear());
+  }
+
   compareDates(
     a: { year: number; monthIndex: number; day: number },
     b: { year: number; monthIndex: number; day: number }
@@ -188,31 +220,50 @@ export class HolidayComponent implements OnInit{
     this.selectedDay = clickedDate;
   }
 
-  planHoliday(event : Event) {
+  planHolidays(event : Event) {
     event.preventDefault();
     if (!this.pointerOne || !this.pointerTwo) return;
 
     const yearOne = this.pointerOne?.year!;
-    const monthOne = String(this.pointerOne?.monthIndex!).padStart(2, '0');
+    const monthOne = String(this.pointerOne?.monthIndex! + 1).padStart(2, '0');
     const dayOne = String(this.pointerOne?.day!).padStart(2, '0');
 
     const yearTwo = this.pointerTwo?.year!;
-    const monthTwo = String(this.pointerTwo?.monthIndex!).padStart(2, '0');
+    const monthTwo = String(this.pointerTwo?.monthIndex! + 1).padStart(2, '0');
     const dayTwo = String(this.pointerTwo?.day!).padStart(2, '0');
 
 
-    const data = {
-      start: `${yearOne}-${monthOne}-${dayOne}`,
-      end: `${yearTwo}-${monthTwo}-${dayTwo}`
+    const body = {
+      timestamp_start: `${yearOne}-${monthOne}-${dayOne}`,
+      timestamp_end: `${yearTwo}-${monthTwo}-${dayTwo}`
     }
 
-    this.dashboarService.insertHoliday(data).subscribe(
-      (res : any) => {
-        console.log("...");
+    if (new Date(body.timestamp_start) > new Date(body.timestamp_end)) {
+      console.error('End date must be after start date.');
+      return;
+    }
+
+    this.holidayService.addHoliday(body).subscribe({
+      next: (res: Holiday) => {
+        this.holidays.push(res);
       },
-      (error) => {
-        console.error("somting went worng", error);
+      error: (err) => {
+        console.error('Something went wrong:', err);
       }
-    );
+    });
+  }
+
+  deleteHoliday(event: Event, id: number): void {
+    event.preventDefault();
+
+    this.holidayService.deleteHoliday(id).subscribe({
+      next: () => {
+        this.holidays = this.holidays.filter(h => h.id !== id);
+        console.log(`Holiday ${id} deleted successfully`);
+      },
+      error: (err) => {
+        console.error(`Failed to delete holiday ${id}:`, err);
+      }
+    });
   }
 }

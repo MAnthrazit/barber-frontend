@@ -1,9 +1,7 @@
 import { Component, OnInit } from "@angular/core";
-import { AuthService } from "../login/app.AuthService";
 import { DashboardService } from "./app.DashboardService";
 import { CommonModule } from "@angular/common";
 import { Cut } from "../home/app.EventInterface";
-import { HomeService } from "../home/app.HomeService";
 import { map } from "rxjs";
 import { HolidayComponent } from "../holiday/app.HolidayComponent";
 
@@ -15,7 +13,7 @@ import { HolidayComponent } from "../holiday/app.HolidayComponent";
 })
 
 export class DashboardComponent implements OnInit{
-  constructor(private dashboardService: DashboardService, private home : HomeService){}
+  constructor(private dashboardService: DashboardService){}
 
 
   months = [
@@ -59,19 +57,7 @@ export class DashboardComponent implements OnInit{
 
 
   getCuts() : void {
-    this.home.getCuts().pipe(
-      map((events : any[]) =>
-          events.map((event : any)  => ({
-            id: event.id,
-            timestamp_start: new Date(event.timestamp_start),
-            timestamp_end: new Date(event.timestamp_end),
-            clients: event.clients,
-            name: event.name,
-            state: event.state,
-            comment: event.comment,
-          }))
-      )
-    ).subscribe((cuts: Cut[]) => {
+    this.dashboardService.getCuts().subscribe((cuts: Cut[]) => {
       this.events = cuts;
     });
   }
@@ -208,17 +194,7 @@ export class DashboardComponent implements OnInit{
   onAccept(event: Event, id : number) : void {
     event.preventDefault();
 
-    this.dashboardService.acceptRequest(id).pipe(
-      map(event => ({
-            id: event.id,
-            timestamp_start: new Date(event.timestamp_start),
-            timestamp_end: new Date(event.timestamp_end),
-            clients: event.clients,
-            name: event.name,
-            state: event.state,
-            comment: event.comment,
-      }))
-    ).subscribe(
+    this.dashboardService.acceptRequest(id).subscribe(
       (mappedCut: Cut) => {
         const index = this.events.findIndex(c => c.id === id);
         if (index > -1) {
@@ -230,19 +206,6 @@ export class DashboardComponent implements OnInit{
   }
 
   onEdit(event: Event, id: number):void {
-  }
-
-  onInsertHoliday(event: Event) : void{
-    event.preventDefault();
-
-    this.dashboardService.insertHoliday([]).subscribe(
-      (dates : Date[]) => {
-        console.log('days add');
-      },
-      () => {
-        console.error('days rejected');
-      }
-    );
   }
 
   toggleDay(monthIndex: number, day: number): void {
@@ -282,19 +245,6 @@ export class DashboardComponent implements OnInit{
     });
 
     this.monthKeys = Array.from(this.monthMap.keys());
-  }
-
-  onDeleteHolidays(event : Event){
-    event.preventDefault();
-
-    this.dashboardService.deleteHoliday([]).subscribe(
-      (dates: Date[]) => {
-        console.log('holidays deleted');
-      },
-      () => {
-        console.error('error deleting holidays');
-      }
-    )
   }
 }
 

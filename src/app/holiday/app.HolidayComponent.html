@@ -27,14 +27,27 @@
       [class.past]="isPastDay(currentMonthIndex, day)"
       [class.pointer]="isPointer(currentMonthIndex, day)"
       [class.between]="isBetween(currentMonthIndex, day)"
+      [class.isHoliday]="isHoliday(currentMonthIndex, day)"
       (click)="togglePointer(currentMonthIndex, day)"
     >
       {{ day }}
     </div>
   </div>
 
-  <button type="submit" class="holiday-button" (click)="planHoliday($event)">
+  <button type="submit" class="holiday-button" (click)="planHolidays($event)">
     <h3> Planen </h3>
   </button>
 
+  <div class="holiday-list-wrapper">
+    <h3>Planned Holidays</h3>
+    <div *ngIf="holidays.length === 0" class="no-holidays">
+      No holidays planned.
+    </div>
+    <div class="holiday" *ngFor="let holiday of holidays">
+      <div class="holiday-info">
+        <span>{{formatDateWrapper(holiday.timestamp_start) }} → {{ formatDateWrapper(holiday.timestamp_end)}}</span>
+      </div>
+      <button class="delete-button" (click)="deleteHoliday($event, holiday.id)">Delete</button>
+    </div>
+  </div>
 </div>
