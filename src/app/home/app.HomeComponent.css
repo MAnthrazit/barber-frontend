@@ -301,3 +301,16 @@ button[type="submit"]:hover {
   height: auto;
   width: 100%;
 }
+
+.day.isHoliday {
+  background-color: #f39c12;
+  color: white;
+  border-style: solid;
+  pointer-events: none;
+}
+
+.day.isHoliday:hover {
+  background-color: #f39c12;
+  cursor: not-allowed;
+}
+

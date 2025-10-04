@@ -2,7 +2,6 @@ import { Component, OnInit } from "@angular/core";
 import { DashboardService } from "./app.DashboardService";
 import { CommonModule } from "@angular/common";
 import { Cut } from "../home/app.EventInterface";
-import { map } from "rxjs";
 import { HolidayComponent } from "../holiday/app.HolidayComponent";
 
 @Component({
@@ -55,10 +54,14 @@ export class DashboardComponent implements OnInit{
     this.updateDayStatusMap();
   }
 
-
   getCuts() : void {
-    this.dashboardService.getCuts().subscribe((cuts: Cut[]) => {
-      this.events = cuts;
+    this.dashboardService.getCuts().subscribe({
+      next: (cuts: Cut[]) => {
+        this.events = cuts;
+      },
+      error: (err) => {
+        console.error('Failed to load cuts:', err);
+      }
     });
   }
 
@@ -183,26 +186,30 @@ export class DashboardComponent implements OnInit{
   onReject(event: Event, id : number) : void {
     event.preventDefault();
 
-    this.dashboardService.rejectRequest(id).subscribe(
-    () => {
-      this.events = this.events.filter(c => c.id !== id);
-    },
-      (error) => console.error("Failed to reject cut", error)
-    );
+    this.dashboardService.rejectRequest(id).subscribe({
+      next: () => {
+        this.events = this.events.filter(c => c.id !== id);
+      },
+      error: (err) => {
+        console.error("Failed to reject request", err);
+      }
+    });
   }
 
   onAccept(event: Event, id : number) : void {
     event.preventDefault();
 
-    this.dashboardService.acceptRequest(id).subscribe(
-      (mappedCut: Cut) => {
+    this.dashboardService.acceptRequest(id).subscribe({
+      next: (mappedCut: Cut) => {
         const index = this.events.findIndex(c => c.id === id);
         if (index > -1) {
           this.events[index] = mappedCut;
         }
       },
-      error => console.error('Failed to accept cut', error)
-    );
+      error: (err) => {
+        console.error('Failed to accept request', err);
+      }
+    });
   }
 
   onEdit(event: Event, id: number):void {

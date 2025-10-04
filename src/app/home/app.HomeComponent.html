@@ -17,6 +17,7 @@
       class="day"
       *ngFor="let day of getDaysInMonth(currentMonth)"
       [class.selected]="isSelected(currentMonthIndex, day)"
+      [class.isHoliday]="isHoliday(currentMonthIndex, day)"
       [class.past]="isPastDay(currentMonthIndex, day)"
       (click)="toggleDay(currentMonthIndex, day)"
     >

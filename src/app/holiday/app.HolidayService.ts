@@ -19,10 +19,10 @@ export class  HolidayService{
         timestamp_start: new Date(data.timestamp_start!),
         timestamp_end: new Date(data.timestamp_end!)
       })),
-    catchError((error : any ) => {
-      console.error('Add holiday failed:', error);
-      return throwError(() => error);
-    })
+      catchError((error : any ) => {
+        console.error('Add holiday failed:', error);
+        return throwError(() => error);
+      })
   );
 }
 

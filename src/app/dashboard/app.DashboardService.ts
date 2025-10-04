@@ -1,6 +1,6 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { map, Observable } from "rxjs";
+import { catchError, map, Observable, throwError } from "rxjs";
 import { Cut } from "../home/app.EventInterface";
 
 @Injectable({
@@ -13,7 +13,12 @@ export class  DashboardService{
   constructor(private http: HttpClient){}
 
   rejectRequest(id: number): Observable<any>{
-    return this.http.delete<any>(`${this.baseUrl}/cuts/reject/${id}`);
+    return this.http.delete<any>(`${this.baseUrl}/cuts/reject/${id}`).pipe(
+      catchError((error : any ) => {
+        console.error('Reject request failed:', error);
+        return throwError(() => error);
+      })
+    );
   }
 
   acceptRequest(id: number): Observable<Cut>{
@@ -26,7 +31,11 @@ export class  DashboardService{
             name: event.name,
             state: event.state,
             comment: event.comment,
-      }))
+      })),
+      catchError((error : any ) => {
+        console.error('Accept request failed:', error);
+        return throwError(() => error);
+      })
     );
   }
 
@@ -42,7 +51,11 @@ export class  DashboardService{
             state: cut.state,
             comment: cut.comment,
           }))
-      )
+      ),
+      catchError((error : any ) => {
+        console.error('Fetch cuts failed:', error);
+        return throwError(() => error);
+      })
     );
   }
 }

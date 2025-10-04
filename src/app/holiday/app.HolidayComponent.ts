@@ -83,8 +83,6 @@ export class HolidayComponent implements OnInit{
     return Array(firstDay);
   }
 
-
-
   get currentMonth() {
     return this.months[this.currentMonthIndex];
   }

@@ -3,6 +3,8 @@ import { Component, OnInit } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { HomeService } from "./app.HomeService";
 import { Cut } from "./app.EventInterface";
+import { Holiday } from "../holiday/app.HolidayInterface";
+import { HolidayService } from "../holiday/app.HolidayService";
 
 @Component({
   selector: 'app-home-component',
@@ -13,7 +15,7 @@ import { Cut } from "./app.EventInterface";
 
 export class HomeComponent implements OnInit{
 
-  constructor(private home: HomeService) {}
+  constructor(private home: HomeService, private holidayService: HolidayService) {}
 
   name : string = '';
   email : string = '';
@@ -23,6 +25,7 @@ export class HomeComponent implements OnInit{
   min : number = 0;
 
   events : Cut[] = [];
+  holidays : Holiday[] = [];
 
   months = [
     { name: 'Januar', days: 31 },
@@ -45,32 +48,81 @@ export class HomeComponent implements OnInit{
   maxMonthIndex : number = this.months.length - 1; //Dez
   currentMonthIndex : number= this.minMonthIndex;
 
-
   selectedDay: { monthIndex: number; day: number; year: number } | null = null;
 
   ngOnInit(): void {
-    const today : Date = new Date();
-    this.minMonthIndex  = today.getMonth();
+    const now = new Date();
+    this.minMonthIndex = now.getMonth();
     this.currentMonthIndex = this.minMonthIndex;
 
-    this.h = today.getHours();
-    this.min = today.getMinutes();
+    this.h = now.getHours();
+    this.min = now.getMinutes();
 
-    this.months[1].days = this.isLeapYear(today.getFullYear()) ? 29: 28;
-    this.selectedDay = { monthIndex: this.currentMonthIndex, day: today.getDate(), year: today.getFullYear() };
+    this.months[1].days = this.isLeapYear(now.getFullYear()) ? 29 : 28;
+    this.getHolidaysData();
     this.getCutsData();
   }
 
+  skipCandidates(date: Date): Date {
+    let candidate = new Date(date);
+    candidate.setHours(0, 0, 0, 0);
+
+    let moved = true;
+    while (moved) {
+      moved = false;
+      for (const holiday of this.holidays) {
+        const start = new Date(holiday.timestamp_start);
+        start.setHours(0, 0, 0, 0);
+
+        const end = new Date(holiday.timestamp_end);
+        end.setHours(0, 0, 0, 0);
+
+        if (candidate >= start && candidate <= end) {
+          candidate = new Date(end);
+          candidate.setDate(candidate.getDate() + 1);
+          moved = true;
+          break;
+        }
+      }
+    }
+    return candidate;
+  }
 
   getCutsData() : void {
+    if (!this.selectedDay) return;
+
     const year = this.selectedDay?.year!;
-    const month = String(this.selectedDay?.monthIndex!).padStart(2, '0');
+    const month = String(this.selectedDay?.monthIndex!).padStart(2, '0'); // is already 1+
     const day = String(this.selectedDay?.day!).padStart(2, '0');
 
     const dateString = `${year}-${month}-${day}`;
 
-    this.home.getAcceptedCuts(dateString).subscribe((cuts: Cut[]) => {
-      this.events = cuts;
+    this.home.getAcceptedCuts(dateString).subscribe({
+      next: (cuts: Cut[]) => {
+        this.events = cuts;
+      },
+      error: (err) => {
+        console.error(`Failed to fetch request`, err);
+      }
+    });
+  }
+
+  getHolidaysData() : void {
+    this.holidayService.getHolidays().subscribe({
+      next: (res : Holiday[]) => {
+        this.holidays = res;
+
+
+      const candidate = this.skipCandidates(new Date());
+      this.selectedDay = {
+        monthIndex: candidate.getMonth(),
+        day: candidate.getDate(),
+        year: candidate.getFullYear()
+      }
+      this.getCutsData()},
+      error: (err) => {
+        console.error(`Failed to fetch holidays`, err);
+      }
     });
   }
 
@@ -87,6 +139,18 @@ export class HomeComponent implements OnInit{
     const monthIndex = this.months.findIndex(m => m.name === month.name);
     const firstDay = new Date(year, monthIndex, 1).getDay(); // 0 (Sun) to 6 (Sat)
     return Array(firstDay);
+  }
+
+  isHoliday(monthIndex: number, day: number): boolean {
+    const year = new Date().getFullYear();
+    const currentDate = new Date(year, monthIndex, day).setHours(0, 0, 0, 0);
+
+    return this.holidays.some(holiday => {
+      const start = new Date(holiday.timestamp_start).setHours(0, 0, 0, 0);
+      const end = new Date(holiday.timestamp_end).setHours(0, 0, 0, 0);
+
+      return currentDate >= start && currentDate <= end;
+    });
   }
 
   get currentMonth() {
@@ -209,14 +273,14 @@ export class HomeComponent implements OnInit{
       timestamp_end: end.toISOString(),
     };
 
-    this.home.addRequest(body).subscribe(
-      (res: Cut) => {
+    this.home.addRequest(body).subscribe({
+      next: (res : Cut) => {
         this.events.push(res);
       },
-      (error) => {
-        console.error("Request denied", error)
+      error: (err) => {
+        console.error(`Failed to request a cut:`, err);
       }
-    )
+    });
   }
 
   doesOverlap(start: Date, end: Date): boolean {
@@ -245,7 +309,7 @@ export class HomeComponent implements OnInit{
     return `${hours}:${minutes}`;
   }
 
-  updateSelectedDayAfterMonthChange() {
+ updateSelectedDayAfterMonthChange(): void {
     const now = new Date();
     const year = now.getFullYear();
     const month = this.currentMonthIndex;
@@ -255,15 +319,16 @@ export class HomeComponent implements OnInit{
     for (let day = 1; day <= daysInMonth; day++) {
       const candidateDate = new Date(year, month, day);
       if (candidateDate >= today) {
+        const adjusted = this.skipCandidates(candidateDate);
         this.selectedDay = {
-          year: year,
-          monthIndex: month,
-          day: day
+          day: adjusted.getDate(),
+          monthIndex: adjusted.getMonth(),
+          year: adjusted.getFullYear(),
         };
+        this.getCutsData();
         return;
       }
     }
-
-   this.selectedDay = null;
+    this.selectedDay = null;
   }
 }
