@@ -7,7 +7,7 @@ import { HolidayComponent } from "../holiday/app.HolidayComponent";
 @Component({
   selector: 'app-dashboard-component',
   templateUrl: 'app.DashboardComponent.html',
-  styleUrl: 'app.DashboardComponent.css',
+  styleUrls: ['app.DashboardComponent.css', '../home/app.InfoWrapper.css'],
   imports: [CommonModule, HolidayComponent]
 })
 
@@ -41,6 +41,7 @@ export class DashboardComponent implements OnInit{
 
   selectedDay: { monthIndex: number; day: number; year: number } | null = null;
   events : Cut[] = [];
+  overlaps: number[] = [];
 
   ngOnInit(): void {
     const today : Date = new Date();
@@ -252,6 +253,37 @@ export class DashboardComponent implements OnInit{
     });
 
     this.monthKeys = Array.from(this.monthMap.keys());
+  }
+
+  updateOverlaps(id : number) : void {
+    this.overlaps = [];
+
+    const target = this.events.find(e => e.id === id);
+    if (!target) return;
+
+    const { timestamp_start, timestamp_end} = target;
+
+    this.events.forEach( ev => {
+      if (
+        ev.id !== id &&
+        ev.timestamp_start.getFullYear() === timestamp_start.getFullYear() &&
+        ev.timestamp_start.getMonth() === timestamp_start.getMonth() &&
+        ev.timestamp_start.getDate() === timestamp_start.getDate() &&
+        this.checkOverlap(timestamp_start, timestamp_end, ev.timestamp_start, ev.timestamp_end)
+      ){
+        this.overlaps.push(ev.id);
+      }
+    });
+
+    console.log(id);
+  }
+
+  checkOverlap(startA: Date, endA: Date, startB: Date, endB: Date): boolean {
+    return startA < endB && startB < endA;
+  }
+
+  isOverlapping(id: number) : boolean {
+    return this.overlaps.includes(id);
   }
 }
 

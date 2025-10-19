@@ -1,6 +1,8 @@
 .home-wrapper{
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   width: 100%;
   margin: 0;
   padding-top: 10px;
@@ -8,7 +10,14 @@
   border-color: black;
 }
 
-.month-wrapper {
+.calendar-wrapper{
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.calendar-wrapper .month-wrapper {
   padding: 10px;
   display: flex;
   flex-direction: row;
@@ -17,7 +26,7 @@
   gap: 20px;
 }
 
-.nav-button {
+.calendar-wrapper .nav-button {
   height: 40px;
   width: 40px;
   font-size: 20px;
@@ -105,6 +114,7 @@
 .reload-button {
   display: flex;
   flex-direction: column;
+  width:100%;
   margin-top:10px;
   align-items: center;
   border: none;
@@ -137,7 +147,11 @@
   padding: 10px;
   margin: 5px 0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.2s;
+}
+
+.event.overlap{
+  background-color: #ffb4b4;
+  transition: all 0.2s;
 }
 
 .event:hover {
@@ -313,4 +327,3 @@ button[type="submit"]:hover {
   background-color: #f39c12;
   cursor: not-allowed;
 }
-

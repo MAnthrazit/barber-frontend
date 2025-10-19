@@ -1,12 +1,20 @@
 .dashboard-wrapper{
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   width: 100%;
+  margin: 0;
   padding-top: 10px;
-  padding-bottom: 10px;
   background-color: white;
-  border-size: 2px;
   border-color: black;
+}
+
+.calendar-wrapper{
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .month-wrapper {
@@ -184,3 +192,12 @@
   transition: all 0.3s;
 }
 
+
+.event:hover {
+  background-color: #eef8ff;
+}
+
+.event.overlap{
+  background-color: #ffb4b4;
+  transition: all 0.2s;
+}

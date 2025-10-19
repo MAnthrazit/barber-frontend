@@ -9,7 +9,7 @@ import { HolidayService } from "../holiday/app.HolidayService";
 @Component({
   selector: 'app-home-component',
   templateUrl: 'app.HomeComponent.html',
-  styleUrl: 'app.HomeComponent.css',
+  styleUrls: ['app.HomeComponent.css', 'app.InfoWrapper.css'],
   imports: [CommonModule, FormsModule]
 })
 
@@ -43,6 +43,7 @@ export class HomeComponent implements OnInit{
   ];
 
   weekdays : string[] = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+  overlaps : number[] = [];
 
   minMonthIndex : number = 0; //Jan
   maxMonthIndex : number = this.months.length - 1; //Dez
@@ -61,6 +62,7 @@ export class HomeComponent implements OnInit{
     this.months[1].days = this.isLeapYear(now.getFullYear()) ? 29 : 28;
     this.getHolidaysData();
     this.getCutsData();
+    this.updateOverlaps();
   }
 
   skipCandidates(date: Date): Date {
@@ -200,6 +202,7 @@ export class HomeComponent implements OnInit{
     event.preventDefault();
     if (this.clients <  9){
       this.clients ++;
+      this.updateOverlaps();
     }
   }
 
@@ -207,6 +210,7 @@ export class HomeComponent implements OnInit{
     event.preventDefault();
     if (this.clients > 1){
       this.clients --;
+      this.updateOverlaps();
     }
   }
 
@@ -229,6 +233,7 @@ export class HomeComponent implements OnInit{
     const today : Date = new Date();
 
     this.selectedDay = { monthIndex: monthIndex, day: day, year: today.getFullYear() };
+    this.updateOverlaps();
   }
 
   getEventsForSelectedDay() {
@@ -250,17 +255,9 @@ export class HomeComponent implements OnInit{
 
     if (!this.selectedDay) return;
 
-    const start : Date = new Date(
-      this.selectedDay.year,
-      this.selectedDay.monthIndex,
-      this.selectedDay.day,
-      this.h,
-      this.min
-    );
+    const [start, end] = this.estimateAppointmentsAndCalculateOverlaps();
 
-    const end: Date = new Date(start.getTime() + 35 * 60000 * this.clients);
-
-    if (this.doesOverlap(start,end)) {
+    if (this.overlaps.length > 0) {
       return;
     }
 
@@ -283,19 +280,56 @@ export class HomeComponent implements OnInit{
     });
   }
 
-  doesOverlap(start: Date, end: Date): boolean {
-    return this.events.some(ev => {
-      return (
+  estimateAppointmentsAndCalculateOverlaps() : Date[] {
+    if (!this.selectedDay) return [];
+
+    const [start, end] = this.estimateAppointment();
+
+    this.overlaps = [];
+
+    this.events.forEach( ev => {
+      if (
+        ev.state === 1 &&
         ev.timestamp_start.getFullYear() === start.getFullYear() &&
         ev.timestamp_start.getMonth() === start.getMonth() &&
         ev.timestamp_start.getDate() === start.getDate() &&
         this.checkOverlap(start, end, ev.timestamp_start, ev.timestamp_end)
-      );
+      ){
+        this.overlaps.push(ev.id);
+      }
     });
+
+    return [start, end];
   }
 
   checkOverlap(startA: Date, endA: Date, startB: Date, endB: Date): boolean {
     return startA < endB && startB < endA;
+  }
+
+  estimateAppointment() : Date[] {
+    if (!this.selectedDay) return [];
+
+    const start : Date = new Date(
+      this.selectedDay.year,
+      this.selectedDay.monthIndex,
+      this.selectedDay.day,
+      this.h,
+      this.min
+    );
+
+    const end: Date = new Date(start.getTime() + 35 * 60000 * this.clients);
+
+    return [start, end];
+
+  }
+
+  updateOverlaps() : void {
+    if (!this.selectedDay) return;
+    this.estimateAppointmentsAndCalculateOverlaps();
+  }
+
+  isOverlapping(id: number) : boolean {
+    return this.overlaps.includes(id);
   }
 
   refreshEvents(event: Event): void {
@@ -326,6 +360,7 @@ export class HomeComponent implements OnInit{
           year: adjusted.getFullYear(),
         };
         this.getCutsData();
+        this.updateOverlaps();
         return;
       }
     }
