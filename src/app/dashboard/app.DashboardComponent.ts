@@ -3,12 +3,13 @@ import { DashboardService } from "./app.DashboardService";
 import { CommonModule } from "@angular/common";
 import { Cut } from "../home/app.EventInterface";
 import { HolidayComponent } from "../holiday/app.HolidayComponent";
+import { CutEditorComponent } from "../editor/app.CutEditorComponent";
 
 @Component({
   selector: 'app-dashboard-component',
   templateUrl: 'app.DashboardComponent.html',
   styleUrls: ['app.DashboardComponent.css', '../home/app.InfoWrapper.css'],
-  imports: [CommonModule, HolidayComponent]
+  imports: [CommonModule, HolidayComponent, CutEditorComponent]
 })
 
 export class DashboardComponent implements OnInit{
@@ -42,6 +43,10 @@ export class DashboardComponent implements OnInit{
   selectedDay: { monthIndex: number; day: number; year: number } | null = null;
   events : Cut[] = [];
   overlaps: number[] = [];
+
+  selectedCut?: Cut = undefined;
+  dayCuts : Cut[] = [];
+  showEditor = false;
 
   ngOnInit(): void {
     const today : Date = new Date();
@@ -213,7 +218,20 @@ export class DashboardComponent implements OnInit{
     });
   }
 
-  onEdit(event: Event, id: number):void {
+  onEdit(event : Event, cut: Cut): void {
+    event.preventDefault();
+
+    this.selectedCut = cut;
+    this.dayCuts = this.events.filter(ev =>
+      ev.timestamp_start.getFullYear() === cut.timestamp_start.getFullYear() &&
+      ev.timestamp_start.getMonth() === cut.timestamp_start.getMonth() &&
+      ev.timestamp_start.getDate() === cut.timestamp_start.getDate());
+    this.showEditor = true;
+  }
+
+  onCloseEditor(): void {
+    this.showEditor = false;
+    this.selectedCut = undefined;
   }
 
   toggleDay(monthIndex: number, day: number): void {

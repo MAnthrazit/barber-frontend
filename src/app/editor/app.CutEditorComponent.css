@@ -1,0 +1,35 @@
+.cut-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.selected-cut {
+  background-color: #e0f7fa;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.cut-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+}
+
+.cut-entry.selected {
+  background-color: #c8e6c9;
+}
+
+.cut-entry.overlapping {
+  background-color: #ffccbc;
+}
+
+.changes-summary {
+  border-top: 1px solid #ccc;
+  padding-top: 1rem;
+  font-size: 0.9em;
+  background: #fafafa;
+}
+

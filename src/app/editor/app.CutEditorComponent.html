@@ -1,0 +1,67 @@
+<div class="cut-editor">
+  <div class="selected-cut">
+    <h4>Selected Cut: {{ selectedCut.name }}</h4>
+
+    <div class="time-inputs">
+      <label>
+        Start:
+        <input
+          type="number"
+          [(ngModel)]="startH"
+          (change)="onChangeSelectedCutStartH()"
+          min="0"
+          max="23"
+        /> :
+        <input
+          type="number"
+          [(ngModel)]="startMin"
+          (change)="onChangeSelectedCutStartMin()"
+          min="0"
+          max="59"
+        />
+      </label>
+
+      <label>
+        End:
+        <input
+          type="number"
+          [(ngModel)]="endH"
+          (change)="onChangeSelectedCutEndH()"
+          min="0"
+          max="23"
+        /> :
+        <input
+          type="number"
+          [(ngModel)]="endMin"
+          (change)="onChangeSelectedCutEndMin()"
+          min="0"
+          max="59"
+        />
+      </label>
+    </div>
+  </div>
+
+  <hr />
+  <div class="cut-list">
+    <h4>All Day Cuts</h4>
+    <div
+      *ngFor="let cut of dayCuts"
+      class="cut-entry"
+      [class.selected]="isSelected(cut.id)"
+      [class.overlapping]="isOverlapping(cut.id)"
+    >
+      <div>
+        <strong>{{ cut.name }}</strong>
+        <span>{{ cut.timestamp_start | date: 'shortTime' }} - {{ cut.timestamp_end | date: 'shortTime' }}</span>
+      </div>
+
+      <button
+        *ngIf="!isSelected(cut.id)"
+        (click)="onChangeSelectedCut(cut.id)"
+      >
+        Select
+      </button>
+      <span *ngIf="isSelected(cut.id)">[Selected]</span>
+    </div>
+  </div>
+</div>

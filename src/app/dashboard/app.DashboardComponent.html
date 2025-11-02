@@ -75,10 +75,22 @@
 
       <div class="event-actions">
         <button class="event-button" (click)="onReject($event, event.id)"><h3>Ablehnen</h3></button>
-        <button class="event-button" (click)="onEdit($event, event.id)"><h3>Bearbeiten</h3></button>
+        <button class="event-button" (click)="onEdit($event, event)"><h3>Bearbeiten</h3></button>
         <button class="event-button" *ngIf="event.state === 0" (click)="onAccept($event, event.id)"><h3>Annehmen</h3></button>
       </div>
     </div>
+  </div>
+
+  <div class="editor-canvas" *ngIf="showEditor">
+    <div class="editor-header">
+      <h3>Edit Cut</h3>
+      <button (click)="onCloseEditor()">X</button>
+    </div>
+
+    <app-cut-editor-component
+      [dayCuts]="dayCuts"
+      [selectedCut]="selectedCut!">
+    </app-cut-editor-component>
   </div>
 </div>
 <app-holiday-component>/<app-holiday-component>

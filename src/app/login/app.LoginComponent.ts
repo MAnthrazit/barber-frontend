@@ -5,7 +5,7 @@ import { Router } from "@angular/router";
 
 @Component({
   selector: 'app-login-component',
-  styleUrl: 'app.LoginComponent.css',
+  styleUrls: ['app.LoginComponent.css', '../home/app.InfoWrapper.css'],
   templateUrl: 'app.LoginComponent.html',
   imports: [FormsModule]
 })
@@ -17,16 +17,17 @@ export class LoginComponent{
   constructor(private auth: AuthService, private router: Router){}
 
   login(event : Event): void {
-    this.auth.login(this.username, this.password).subscribe(
-      (res) => {
+    event.preventDefault();
+    this.auth.login(this.username, this.password).subscribe({
+      next: (res) => {
         this.auth.saveToken(res.token);
         this.auth.isLoginSubject.next(true);
-        this.router.navigate(['dashboard'])
+        this.router.navigate(['dashboard']);
       },
-      (error: any) => {
+      error: (error: any) => {
         console.error(error.message);
       }
-    )
+    });
   }
 
   logout(event : Event): void {
